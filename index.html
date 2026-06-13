@@ -143,6 +143,44 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
 </div>
 <div class="foot">One mode per day. One MIT per day. Decide the night before. The week wins or loses Sunday evening.</div>
 <script>
+const GIST_TOKEN='YOUR_GITHUB_TOKEN_HERE';
+const GIST_ID='YOUR_GIST_ID_HERE';
+const GIST_FILE='weekly-os-data.json';
+async function fetchGist(){
+  if(GIST_TOKEN==='YOUR_GITHUB_TOKEN_HERE')return;
+  try{
+    const r=await fetch('https://api.github.com/gists/'+GIST_ID,{headers:{Authorization:'token '+GIST_TOKEN}});
+    if(!r.ok)return;
+    const data=await r.json();
+    const content=data.files[GIST_FILE]?.content;
+    if(!content)return;
+    const store=JSON.parse(content);
+    [0,1,2,3,4,5,6].forEach(idx=>{
+      const key='mit_'+wk+'_'+idx;
+      if(store[key]!==undefined){
+        const ta=document.getElementById('mi'+idx);
+        if(ta)ta.value=store[key];
+        ss(key,store[key]);
+      }
+    });
+  }catch(e){}
+}
+async function saveGist(){
+  if(GIST_TOKEN==='YOUR_GITHUB_TOKEN_HERE')return;
+  const store={};
+  [0,1,2,3,4,5,6].forEach(idx=>{
+    const key='mit_'+wk+'_'+idx;
+    const val=gs(key);
+    if(val)store[key]=val;
+  });
+  try{
+    await fetch('https://api.github.com/gists/'+GIST_ID,{
+      method:'PATCH',
+      headers:{Authorization:'token '+GIST_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(store)}}})
+    });
+  }catch(e){}
+}
 const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const DS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -207,10 +245,12 @@ const cards=document.getElementById('cards');
   div.innerHTML='<div class="dh" onclick="tog(\'db'+idx+'\')"><div class="dl"><div class="dd" style="background:'+dc.c+'"></div><div><div class="dn" style="color:'+dc.c+'">'+DN[idx]+'</div><div class="ddt">'+ds2+'</div></div><div class="dm" style="color:'+dc.c+';border-color:'+dc.c+'44;background:'+dc.c+'11">'+dc.mode+'</div></div>'+(isT?'<div class="tb">Today</div>':'<span style="font-size:11px;color:#333">↓</span>')+'</div><div class="db'+(isT?' open':'')+'" id="db'+idx+'">'+bh+'<div class="mit"><div class="mil">Most important task</div><textarea id="mi'+idx+'" rows="2" placeholder="'+MP[idx]+'">'+saved+'</textarea><button class="msave" id="savebtn'+idx+'" onclick="svm('+idx+')">Save MIT</button></div></div>';
   cards.appendChild(div);
 });
+fetchGist();
 function tog(id){document.getElementById(id).classList.toggle('open');}
 function svm(idx){
   const v=document.getElementById('mi'+idx).value;
   ss('mit_'+wk+'_'+idx,v);
+  saveGist();
   const btn=document.getElementById('savebtn'+idx);
   if(btn){btn.textContent='Saved ✓';btn.style.color='#4ade80';btn.style.borderColor='#4ade80';}
   setTimeout(()=>{if(btn){btn.textContent='Save MIT';btn.style.color='';btn.style.borderColor='';}},2000);
