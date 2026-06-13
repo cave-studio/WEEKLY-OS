@@ -84,6 +84,19 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
 .bg-fl{background:rgba(251,146,60,.08);color:var(--fl);}
 .bg-ap{background:rgba(100,100,100,.12);color:#888;}
 .bg-cv{background:rgba(245,245,240,.05);color:var(--w);}
+@media(min-width:768px){
+  body{max-width:960px;padding:24px 40px 80px;}
+  .topnav{margin:-24px -40px 24px;padding:10px 40px;max-width:none;}
+  .brand{margin-bottom:6px;}
+  .bn{font-size:42px;}
+  .hero-nxt{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .hero{margin-bottom:0;}
+  .nxt{margin-bottom:0;}
+  .hday{font-size:52px;}
+  #cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .checklist-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;}
+  .foot{margin-top:32px;}
+}
 </style>
 </head>
 <body>
@@ -111,6 +124,7 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
 </div>
 <div class="brand"><div class="bn">JOHN CUEVA</div><div class="bs">Weekly OS</div></div>
 <div class="rule"></div>
+<div class="hero-nxt">
 <div class="hero">
   <div class="hday" id="hday"></div>
   <div class="hdate" id="hdate"></div>
@@ -120,6 +134,7 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
 <div class="nxt" id="nxt">
   <div><div class="nl">Next focused day</div><div class="nd" id="ndn"></div><div class="nm" id="ndm"></div></div>
   <div><div class="nc" id="ndc"></div><div class="ndl">days away</div></div>
+</div>
 </div>
 <div class="strip" id="strip"></div>
 <div class="leg">
@@ -131,6 +146,7 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
 </div>
 <div id="cards"></div>
 <div class="sh">Weekly non-negotiables</div>
+<div class="checklist-grid">
 <div class="cg"><div class="cgt">Home</div>
   <div class="ci" onclick="tgl(this,'h1')"><div class="cb" id="h1"></div><div class="cl">Monday — reset and vacuum</div></div>
   <div class="ci" onclick="tgl(this,'h2')"><div class="cb" id="h2"></div><div class="cl">Wednesday — laundry washed and folded</div></div>
@@ -155,6 +171,7 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
   <div class="ci" onclick="tgl(this,'s1')"><div class="cb" id="s1"></div><div class="cl">Bible reading every morning</div></div>
   <div class="ci" onclick="tgl(this,'s2')"><div class="cb" id="s2"></div><div class="cl">Sunday evening weekly preview done</div></div>
   <div class="ci" onclick="tgl(this,'s3')"><div class="cb" id="s3"></div><div class="cl">MIT set the night before each focused day</div></div>
+</div>
 </div>
 <div class="foot">One mode per day. One MIT per day. Decide the night before. The week wins or loses Sunday evening.</div>
 <script>
