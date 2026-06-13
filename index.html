@@ -92,8 +92,23 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
   <div class="topnav-links">
     <a href="index.html" class="topnav-link active">Weekly OS</a>
     <a href="cueva_content_calendar.html" class="topnav-link">Calendar</a>
+    <button class="topnav-link" onclick="openSyncSetup()" style="cursor:pointer;background:transparent;border:1px solid var(--b);">Sync</button>
   </div>
 </nav>
+<div id="syncmodal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--o);border:1px solid var(--b);border-radius:14px;padding:24px;width:100%;max-width:360px;">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--m);margin-bottom:16px;">MIT Sync Setup</div>
+    <div style="font-size:11px;color:var(--d);margin-bottom:16px;line-height:1.6;">Enter your GitHub token (gist scope) and Gist ID once per device. Your MITs will sync across all your devices.</div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--m);margin-bottom:5px;">GitHub Token</div>
+    <input id="sync-token" type="password" placeholder="ghp_..." style="width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;padding:8px 10px;color:var(--w);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:12px;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--m);margin-bottom:5px;">Gist ID</div>
+    <input id="sync-gist" type="text" placeholder="124f156c2aa0..." style="width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;padding:8px 10px;color:var(--w);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:16px;">
+    <div style="display:flex;gap:8px;">
+      <button onclick="saveSyncSetup()" style="flex:1;background:var(--w);color:var(--k);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:10px;border-radius:8px;border:none;cursor:pointer;">Save</button>
+      <button onclick="closeSyncSetup()" style="flex:1;background:var(--save-bg);color:var(--save-color);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:10px;border-radius:8px;border:1px solid var(--save-border);cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
 <div class="brand"><div class="bn">JOHN CUEVA</div><div class="bs">Weekly OS</div></div>
 <div class="rule"></div>
 <div class="hero">
@@ -143,13 +158,13 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;padding
 </div>
 <div class="foot">One mode per day. One MIT per day. Decide the night before. The week wins or loses Sunday evening.</div>
 <script>
-const GIST_TOKEN='YOUR_GITHUB_TOKEN_HERE';
-const GIST_ID='YOUR_GIST_ID_HERE';
 const GIST_FILE='weekly-os-data.json';
+function gcreds(){return{token:localStorage.getItem('gist_token'),id:localStorage.getItem('gist_id')};}
 async function fetchGist(){
-  if(GIST_TOKEN==='YOUR_GITHUB_TOKEN_HERE')return;
+  const {token,id}=gcreds();
+  if(!token||!id)return;
   try{
-    const r=await fetch('https://api.github.com/gists/'+GIST_ID,{headers:{Authorization:'token '+GIST_TOKEN}});
+    const r=await fetch('https://api.github.com/gists/'+id,{headers:{Authorization:'token '+token}});
     if(!r.ok)return;
     const data=await r.json();
     const content=data.files[GIST_FILE]?.content;
@@ -166,7 +181,8 @@ async function fetchGist(){
   }catch(e){}
 }
 async function saveGist(){
-  if(GIST_TOKEN==='YOUR_GITHUB_TOKEN_HERE')return;
+  const {token,id}=gcreds();
+  if(!token||!id)return;
   const store={};
   [0,1,2,3,4,5,6].forEach(idx=>{
     const key='mit_'+wk+'_'+idx;
@@ -174,12 +190,23 @@ async function saveGist(){
     if(val)store[key]=val;
   });
   try{
-    await fetch('https://api.github.com/gists/'+GIST_ID,{
+    await fetch('https://api.github.com/gists/'+id,{
       method:'PATCH',
-      headers:{Authorization:'token '+GIST_TOKEN,'Content-Type':'application/json'},
+      headers:{Authorization:'token '+token,'Content-Type':'application/json'},
       body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(store)}}})
     });
   }catch(e){}
+}
+function openSyncSetup(){document.getElementById('syncmodal').style.display='flex';}
+function closeSyncSetup(){document.getElementById('syncmodal').style.display='none';}
+function saveSyncSetup(){
+  const t=document.getElementById('sync-token').value.trim();
+  const g=document.getElementById('sync-gist').value.trim();
+  if(!t||!g)return;
+  localStorage.setItem('gist_token',t);
+  localStorage.setItem('gist_id',g);
+  closeSyncSetup();
+  fetchGist();
 }
 const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const DS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
