@@ -195,6 +195,14 @@ async function fetchGist(){
         ss(key,store[key]);
       }
     });
+    ['h1','h2','h3','c1','c2','c3','o1','o2','o3','f1','f2','f3','s1','s2','s3'].forEach(k=>{
+      const key='ck_'+wk+'_'+k;
+      if(store[key]!==undefined){
+        ss(key,store[key]);
+        const b=document.getElementById(k);
+        if(b){b.classList.toggle('chk',store[key]);b.parentElement.querySelector('.cl').classList.toggle('done',store[key]);}
+      }
+    });
   }catch(e){}
 }
 async function saveGist(){
@@ -205,6 +213,11 @@ async function saveGist(){
     const key='mit_'+wk+'_'+idx;
     const val=gs(key);
     if(val)store[key]=val;
+  });
+  ['h1','h2','h3','c1','c2','c3','o1','o2','o3','f1','f2','f3','s1','s2','s3'].forEach(k=>{
+    const key='ck_'+wk+'_'+k;
+    const val=gs(key);
+    if(val!==null)store[key]=val||false;
   });
   try{
     await fetch('https://api.github.com/gists/'+id,{
@@ -306,6 +319,7 @@ function tgl(item,key){
   const box=item.querySelector('.cb'),lbl=item.querySelector('.cl');
   box.classList.toggle('chk');lbl.classList.toggle('done');
   ss('ck_'+wk+'_'+key,box.classList.contains('chk'));
+  saveGist();
 }
 </script>
 </body>
